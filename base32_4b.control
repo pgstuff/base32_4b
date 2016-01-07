@@ -1,0 +1,4 @@
+# base32_4b extension
+comment = 'Base 32 stored in 4 bytes'
+default_version = '0.0.1'
+relocatable = false

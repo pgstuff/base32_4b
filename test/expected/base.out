@@ -1,0 +1,170 @@
+\set ECHO none
+CREATE TABLE base32_4bs(id serial primary key, base32_4b base32_4b unique);
+INSERT INTO base32_4bs(base32_4b) VALUES('012345');
+INSERT INTO base32_4bs(base32_4b) VALUES('6789AB');
+INSERT INTO base32_4bs(base32_4b) VALUES('CDEFGH');
+INSERT INTO base32_4bs(base32_4b) VALUES('IJKLMN');
+INSERT INTO base32_4bs(base32_4b) VALUES('OPQRST');
+INSERT INTO base32_4bs(base32_4b) VALUES('UV');
+INSERT INTO base32_4bs(base32_4b) VALUES('200004');
+INSERT INTO base32_4bs(base32_4b) VALUES('400002');
+INSERT INTO base32_4bs(base32_4b) VALUES('300003');
+INSERT INTO base32_4bs(base32_4b) VALUES('abctuv');
+INSERT INTO base32_4bs(base32_4b) VALUES('0'); -- test limits
+INSERT INTO base32_4bs(base32_4b) VALUES('VVVVVV');
+SELECT * FROM base32_4bs ORDER BY base32_4b;
+ id | base32_4b 
+----+-----------
+ 11 | 0
+  6 | UV
+  1 | 12345
+  7 | 200004
+  9 | 300003
+  8 | 400002
+  2 | 6789AB
+ 10 | ABCTUV
+  3 | CDEFGH
+  4 | IJKLMN
+  5 | OPQRST
+ 12 | VVVVVV
+(12 rows)
+
+SELECT MIN(base32_4b) AS min FROM base32_4bs;
+ min 
+-----
+ 0
+(1 row)
+
+SELECT MAX(base32_4b) AS max FROM base32_4bs;
+  max   
+--------
+ VVVVVV
+(1 row)
+
+-- index scan
+TRUNCATE base32_4bs;
+INSERT INTO base32_4bs(base32_4b) SELECT '44'||id FROM generate_series(5678, 8000) id;
+SET enable_seqscan = false;
+SELECT id,base32_4b::text FROM base32_4bs WHERE base32_4b = '446000';
+ id  | base32_4b 
+-----+-----------
+ 335 | 446000
+(1 row)
+
+SELECT id,base32_4b FROM base32_4bs WHERE base32_4b >= '447000' LIMIT 5;
+  id  | base32_4b 
+------+-----------
+ 1335 | 447000
+ 1336 | 447001
+ 1337 | 447002
+ 1338 | 447003
+ 1339 | 447004
+(5 rows)
+
+SELECT count(id) FROM base32_4bs;
+ count 
+-------
+  2323
+(1 row)
+
+SELECT count(id) FROM base32_4bs WHERE base32_4b <> ('446500'::text)::base32_4b;
+ count 
+-------
+  2322
+(1 row)
+
+RESET enable_seqscan;
+-- operators and conversions
+SELECT '0'::base32_4b < '0'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '0'::base32_4b > '0'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '0'::base32_4b < '1'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b > '1'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '0'::base32_4b <= '0'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b >= '0'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b <= '1'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b >= '1'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '0'::base32_4b <> '0'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+SELECT '0'::base32_4b <> '1'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b = '0'::base32_4b;
+ ?column? 
+----------
+ t
+(1 row)
+
+SELECT '0'::base32_4b = '1'::base32_4b;
+ ?column? 
+----------
+ f
+(1 row)
+
+-- COPY FROM/TO
+TRUNCATE base32_4bs;
+COPY base32_4bs(base32_4b) FROM STDIN;
+COPY base32_4bs TO STDOUT;
+2336	0
+2337	VVVVVV
+-- clean up --
+DROP TABLE base32_4bs;
+-- errors
+SELECT ''::base32_4b;
+ERROR:  base32_4b number "" must be 1 digits or larger.
+LINE 1: SELECT ''::base32_4b;
+               ^
+SELECT '1234567'::base32_4b;
+ERROR:  base32_4b number "1234567" must be 6 digits or smaller.
+LINE 1: SELECT '1234567'::base32_4b;
+               ^
+SELECT 'Z'::base32_4b;
+ERROR:  base32_4b number "Z" must only contain digits 0 to 9 and A to V.
+LINE 1: SELECT 'Z'::base32_4b;
+               ^
