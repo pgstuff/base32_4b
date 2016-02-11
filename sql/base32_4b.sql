@@ -47,7 +47,7 @@ LANGUAGE C IMMUTABLE STRICT;
 -- to/from text conversion
 CREATE OR REPLACE FUNCTION base32_4b_to_text(base32_4b) RETURNS text AS '$libdir/base32_4b'
 LANGUAGE C IMMUTABLE STRICT;
-CREATE OR REPLACE FUNCTION text_to_base32_4b(text) RETURNS base32_4b AS '$libdir/base32_4b'
+CREATE OR REPLACE FUNCTION base32_4b_from_text(text) RETURNS base32_4b AS '$libdir/base32_4b'
 LANGUAGE C IMMUTABLE STRICT;
 
 -- operators
@@ -116,4 +116,4 @@ CREATE OPERATOR CLASS base32_4b_ops DEFAULT FOR TYPE base32_4b USING btree AS
 	FUNCTION 1 base32_4b_cmp(base32_4b, base32_4b);
 -- cast from/to text
 CREATE CAST (base32_4b AS text) WITH FUNCTION base32_4b_to_text(base32_4b) AS ASSIGNMENT;
-CREATE CAST (text AS base32_4b) WITH FUNCTION text_to_base32_4b(text) AS ASSIGNMENT;
+CREATE CAST (text AS base32_4b) WITH FUNCTION base32_4b_from_text(text) AS ASSIGNMENT;

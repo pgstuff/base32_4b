@@ -29,7 +29,7 @@ static char char_to_num_b32[] = {
 Datum base32_4b_in(PG_FUNCTION_ARGS);
 Datum base32_4b_out(PG_FUNCTION_ARGS);
 Datum base32_4b_to_text(PG_FUNCTION_ARGS);
-Datum text_to_base32_4b(PG_FUNCTION_ARGS);
+Datum base32_4b_from_text(PG_FUNCTION_ARGS);
 Datum base32_4b_send(PG_FUNCTION_ARGS);
 Datum base32_4b_recv(PG_FUNCTION_ARGS);
 Datum base32_4b_lt(PG_FUNCTION_ARGS);
@@ -87,9 +87,9 @@ base32_4b_to_text(PG_FUNCTION_ARGS)
 	PG_RETURN_TEXT_P(base32_4b_text);
 }
 
-PG_FUNCTION_INFO_V1(text_to_base32_4b);
+PG_FUNCTION_INFO_V1(base32_4b_from_text);
 Datum
-text_to_base32_4b(PG_FUNCTION_ARGS)
+base32_4b_from_text(PG_FUNCTION_ARGS)
 {
 	text  *base32_4b_text = PG_GETARG_TEXT_P(0);
 	char  *base32_4b_str = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(base32_4b_text)));
